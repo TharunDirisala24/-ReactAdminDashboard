@@ -44,24 +44,29 @@ const handleLogin=(e)=>{
     alert("Please enter a valid email address.");
     return;
   }
-  if(password.length <= 6){
-    alert("Password must be more than 6 characters.");
-    return;
-  }
-  if(password[0] !== password[0].toUpperCase()){
-    alert("Password must start with an uppercase letter.");
-    return;
-  }
-  if(email==="admin@gmail.com" && password==="Admin123"){
-    if(rememberMe){
-      localStorage.setItem("rememberedEmail", email);
+
+  fetch('http://localhost:5000/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      if (rememberMe) {
+        localStorage.setItem("rememberedEmail", email);
+      } else {
+        localStorage.removeItem("rememberedEmail");
+      }
+      setAuth(true);
     } else {
-      localStorage.removeItem("rememberedEmail");
+      alert(data.message);
     }
-    setAuth(true)
-  }else{
-    alert("Invalid Login")
-  }
+  })
+  .catch(err => {
+    console.error('Login error:', err);
+    alert('Login failed. Please try again.');
+  });
 }
 
 const handleForgotPassword=(e)=>{
